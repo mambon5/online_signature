@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<!-- 
+This code creates a form with:
+
+1. Name and email fields
+2. A canvas-based signature pad
+3. Clear signature button
+4. Form submission button
+
+Key features:
+
+- Responsive canvas for drawing signatures
+- Touch support for mobile devices
+- Stores signature as base64 encoded image
+- Basic form validation
+- Clear signature functionality
+- Form submission handling
+
+To use this in a production environment, you would need to:
+
+1. Add server-side processing to handle form submissions
+2. Implement data storage
+3. Add security measures (encryption, validation)
+4. Add user authentication if needed
+5. Add legal disclaimers
+6. Implement audit trails
+7. Add timestamp verification -->
+
+<html>
+<head>
+    <title>Electronic Signature Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .form-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .signature-container {
+            border: 1px solid #ccc;
+            margin: 20px 0;
+            position: relative;
+            background-color: #f9f9f9;
+        }
+
+        #signature-pad {
+            width: 100%;
+            height: 200px;
+        }
+
+        .clear-btn {
+            background-color: #ff4444;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-field {
+            margin: 10px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="create_pdf_form.js"></script>
+</head>
+<body>
+    
+    <div class="form-container">
+       
+        <h2>Formulari electrònic de signatura</h2>
+
+        <p >Declaro mi firma y adhesión al siguiente texto:<p>
+        <p id="paragraf1">Por la presente y de acuerdo al artículo 77.1 del Real Decreto Legislativo 2/2015 de 23 de octubre, por lo que se aprueba el texto refundido de la Ley del Estatuto de los Trabajadores, las personas trabajadoras aquí firmantes, siendo estas más del 33% del total de la plantilla de la empresa CCC Barcelona Digital Services, S.L.U. con NIF B67144949. Se presentan como convocantes de una asamblea que tiene el objeto de revocar al actual comité de empresa en su totalidad, tanto a los representantes en activo como al resto de candidatos que figuran en las listas de CCOO y UGT.
+        </p>
+
+        <p id="paragraf2">Por la presente y de acuerdo al artículo 77.1 del Real Decreto Legislativo 2/2015 de 23 de octubre, por lo que se aprueba el texto refundido de la Ley del Estatuto de los Trabajadores, las personas trabajadoras aquí firmantes, siendo estas más del 33% del total de la plantilla de la empresa CCC Barcelona Digital Services, S.L.U. con NIF B67144949. Se presentan como convocantes de una asamblea que tiene el objeto de convocar elecciones sindicales
+        </p>
+
+        <form id="signatureForm">
+            <div class="form-field">
+                <label for="name">Nombre:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-field">
+                <label for="cognom">Apellido:</label>
+                <input type="text" id="cognom" name="cognom" required>
+            </div>
+            <div class="form-field">
+                <label for="dni">DNI/NIF/Passaporte:</label>
+                <input type="text" id="dni" name="dni" required>
+            </div>
+            <div class="form-field">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-field">
+                <label>Firma:</label>
+                <div class="signature-container">
+                    <canvas id="signature-pad"></canvas>
+                </div>
+                <button type="button" class="clear-btn" onclick="clearSignature()">Esborrar firma</button>
+                <input type="hidden" id="signature-data" name="signature">
+            </div>
+
+            <div class="form-field">
+                <button type="submit" class="submit-btn">Enviar</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('signature-pad');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+        let points = [];
+        lastX = 0;
+        lastY = 0;
+        firspoint=true;
+
+        // Augmentar la resolució del canvas (escala x2)
+        const scaleFactor = 2;
+        canvas.width = canvas.offsetWidth * scaleFactor;
+        canvas.height = canvas.offsetHeight * scaleFactor;
+        ctx.scale(scaleFactor, scaleFactor);
+
+        // Set drawing style
+        ctx.strokeStyle = '#0000FF';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+
+        // Drawing functions
+        function startDrawing(e) {
+            drawing = true;
+            points = [];
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+           
+            if(firspoint) {
+                ctx.lineTo(x, y);
+                firspoint = false;
+            }
+            else {
+                
+                 ctx.quadraticCurveTo(lastX, lastY, (x + lastX) / 2, (y + lastY) / 2);
+            }
+            ctx.stroke();
+            points.push({x, y});
+            lastX = x;
+            lastY = y;
+        }
+
+        function drawSmooth(e) {
+            if (!drawing) return;
+            requestAnimationFrame(() => draw(e)); // Dibuixa en la següent animació
+        }
+
+        function stopDrawing() {
+            if (drawing) {
+                drawing = false;
+                firspoint = true;
+                // Save signature as data URL
+                document.getElementById('signature-data').value = canvas.toDataURL('image/png', 1.0); // Qualitat màxima
+
+            }
+        }
+// Event listeners
+canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', drawSmooth);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Touch events
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', drawSmooth);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('signature-data').value = '';
+        }
+
+        // Handle form submission
+        document.getElementById('signatureForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+           
+            if (!document.getElementById('signature-data').value) {
+                alert('Please provide a signature');
+                return;
+            }
+
+            // Here you would typically send the form data to a server
+            // const formData = {
+            //     name: document.getElementById('name').value,
+            //     email: document.getElementById('email').value,
+            //     signature: document.getElementById('signature-data').value
+            // };
+
+            let formData = new FormData(this);
+
+                fetch('guardar_firma.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                   
+
+                    console.log('Form data:', formData);
+                    generatePDF();
+                    alert('Form submitted successfully!');
+                    this.reset();
+                    clearSignature();
+                })
+                .catch(error => console.error('Error:', error));
+            });
+
+           
+       
+    </script>
+   
+    
+
+</body>
+</html>
+
