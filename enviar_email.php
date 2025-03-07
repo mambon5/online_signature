@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->Host = 'smtp.hostinger.com'; // Servidor SMTP
         $mail->SMTPAuth = true;
         $mail->Username = 'info@fist.cat'; // El teu correu
-        $mail->Password = 'Inffist28?'; // La teva contrasenya
+        $mail->Password = '***?'; // La teva contrasenya
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // Encriptació
         $mail->Port = 587; // Port SMTP
 
