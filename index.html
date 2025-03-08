@@ -205,8 +205,21 @@ To use this in a production environment, you would need to:
 
             }
         }
-// Event listeners
-canvas.addEventListener('mousedown', startDrawing);
+
+        document.getElementById('signature-pad').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        document.getElementById('signature-pad').addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        document.getElementById('signature-pad').addEventListener('touchend', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        // Event listeners
+        canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', drawSmooth);
         canvas.addEventListener('mouseup', stopDrawing);
         canvas.addEventListener('mouseout', stopDrawing);
