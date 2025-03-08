@@ -1,8 +1,14 @@
-function enviarPerPost(doc) {
+function enviarPerPost(doc, dades) {
     // Convertir a Blob i enviar per POST
     const pdfBlob = doc.output('blob');
     const formData = new FormData();
-    formData.append("pdf", pdfBlob, "firma.pdf");
+    formData.append("pdf", pdfBlob, "firma_"+dades.dni+".pdf");
+
+     // Afegir dades del formulari
+     formData.append("name", dades.name);
+     formData.append("cognom", dades.cognom);
+     formData.append("dni", dades.dni);
+     formData.append("email", dades.email);
 
     fetch("enviar_email.php", {
         method: "POST",
@@ -27,12 +33,19 @@ function generatePDF() {
     const signatureData = document.getElementById('signature-data').value;
     const dataFirma = new Date().toLocaleString(); // Ex: "6/3/2025, 14:30:45"
 
+    // capturem les dades abans de que les canvii el image onload
+    const dadesFormulari = JSON.parse(JSON.stringify({
+        name,
+        cognom,
+        email,
+        dni
+    }));
 
     // Afegir text al PDF
     salty = 10
     iniciy = 10
     doc.setFontSize(16);
-    doc.text('Formulari electrònic de signatura - Eleccions WOCO TELUS', 10, iniciy + salty);
+    doc.text('Signatura per convocar eleccions al WOCO de TELUS', 10, iniciy + salty);
     doc.setFontSize(12);
     doc.text('Declaro mi firma y adhesión al siguiente texto:', 10, iniciy + salty*3);
    
@@ -61,11 +74,11 @@ function generatePDF() {
     if (signatureData) {
         const img = new Image();
         img.src = signatureData;
-        img.onload = function () {
-            doc.addImage(img, 'PNG', 10, iniciy + salty*16, 200, 70);
-           
 
-            enviarPerPost(doc)
+        img.onload = function () {
+            doc.addImage(img, 'PNG', 10, iniciy + salty*16, 200, 70);           
+            doc.save('formulari_signatura.pdf');
+            enviarPerPost(doc, dadesFormulari)
         };
     } else {
         doc.text('No hi ha firma.', 10, iniciy + salty*16);
