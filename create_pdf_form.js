@@ -45,7 +45,7 @@ function generatePDF() {
     salty = 10
     iniciy = 10
     doc.setFontSize(16);
-    doc.text('Signatura per convocar eleccions al WOCO de TELUS', 10, iniciy + salty);
+    doc.text('Convocatoria de asamblea revocatoria y elecciones sindicales', 10, iniciy + salty);
     doc.setFontSize(12);
     doc.text('Declaro mi firma y adhesión al siguiente texto:', 10, iniciy + salty*3);
    
@@ -67,7 +67,7 @@ function generatePDF() {
     doc.text(`Cognom: ${cognom}`, 10, iniciy + salty*12);
     doc.text(`DNI/NIF/Passaport: ${dni}`, 10, iniciy + salty*13);
     doc.text(`Email: ${email}`, 10, iniciy + salty*14);
-    doc.text("Data de la firma: " + dataFirma, 10, iniciy + salty*25);
+    doc.text("Data de la firma: " + dataFirma + " CET", 10, iniciy + salty*25 );
     doc.text(`Firma:`, 10, iniciy + salty*15);
 
     // Afegir firma si existeix

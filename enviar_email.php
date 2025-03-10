@@ -29,8 +29,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->Port = 587; // Port SMTP
 
         // Destinataris
-        $mail->setFrom('auto@fist-demokratian.com', 'Firma eleccions TELUS');
+        $mail->setFrom('auto@fist-demokratian.com', "Firma eleccions TELUS $dni");
         $mail->addAddress('info@fist.cat', 'FIST');
+        $mail->addAddress('telus@fist.cat', 'FIST');
         $mail->addAddress($email, "$nom $cognom"); // Enviar també al signant
 
        
@@ -52,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->Body = "
             <p>Benvolgut/da <strong>$nom $cognom</strong>,</p>
             <p>Gràcies per signar la petició de revocar el comité d'empresa a Telus i la convocatòria d'eleccions a l'empresa. A continuació, t'adjuntem el document signat.</p>
-            <p><strong>DNI/NIF:</strong> $dni</p>
+            <p><strong>DNI/NIF/Passaport:</strong> $dni</p>
             <p>Si tens algun dubte, no dubtis a contactar amb nosaltres.</p>
             <p>Atentament,</p><p><strong>FIST</strong> (Força Independent Sindical de Treballadorxs)</p>
             <p>No respongueu a aquest email, per qualsevol consulta contacteu <strong>telus@fist.cat</strong></p>
