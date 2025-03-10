@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Generem la línia de text a guardar
-    $firma = date("Y-m-d H:i:s") . " | $nom $cognom | DNI: $dni | Email: $email\n";
+    $firma = date("Y-m-d H:i:s") . " | $nom $cognom |  $dni |  $email\n";
 
     // Afegim al fitxer (a mode d'append, no sobreescriure)
     $fitxer = "firmants.txt";
