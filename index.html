@@ -92,6 +92,7 @@ To use this in a production environment, you would need to:
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="create_pdf_form.js"></script>
 </head>
 <body>
@@ -266,11 +267,11 @@ To use this in a production environment, you would need to:
                 .then(data => {
                    
 
-                    console.log('Form data:', formData);
+                    // console.log('Form data:', formData);
                     generatePDF();
-                    alert('Form submitted successfully!');
-                    this.reset();
-                    clearSignature();
+                    // alert('Form submitted successfully!');
+                    // this.reset();
+                    // clearSignature();
                 })
                 .catch(error => console.error('Error:', error));
             });

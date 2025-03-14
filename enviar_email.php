@@ -30,15 +30,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Destinataris
         $mail->setFrom('auto@fist-demokratian.com', "Firma eleccions TELUS $dni");
-        $mail->addAddress('info@fist.cat', 'FIST');
-        $mail->addAddress('telus@fist.cat', 'FIST');
-        $mail->addAddress($email, "$nom $cognom"); // Enviar també al signant
-
        
+        // Llistat d'adreces
+        $addresses = [
+            'info@fist.cat' => 'FIST',
+            'telus@fist.cat' => 'FIST Telus',
+            'auto@fist-demokratian.com' => 'FIST demokratian',
+            $email => "$nom $cognom" // Enviar també al signant
 
+        ];
+
+        // Afegir només les adreces vàlides
+        foreach ($addresses as $addr => $name) {
+            if (filter_var($addr, FILTER_VALIDATE_EMAIL)) {
+                $mail->addAddress($addr, $name);
+            }
+        }
         // Validar email
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            die("Error: L'adreça de correu $email del firmant no és vàlida.");
+        // Afegir només les adreces vàlides
+        foreach ($addresses as $addr => $name) {
+            if (filter_var($addr, FILTER_VALIDATE_EMAIL)) {
+                $mail->addAddress($addr, $name);
+            }
         }
 
         // Adjuntar el PDF
@@ -59,12 +72,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p>No respongueu a aquest email, per qualsevol consulta contacteu <strong>telus@fist.cat</strong></p>
         ";
 
-        
-        // Enviar correu
-        $mail->send();
-        echo "El correu s'ha enviat correctament.";
+        // Enviar correu només si hi ha destinataris vàlids
+        if (!empty($mail->getAllRecipientAddresses())) {
+            $mail->send();
+            echo "El correu s'ha enviat correctament.";
+        } else {
+            echo "No hi ha cap adreça vàlida per enviar el correu.";
+        }
     } catch (Exception $e) {
         echo "Error en enviar el correu: {$mail->ErrorInfo}";
     }
+    
+ 
 }
 ?>
